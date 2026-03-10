@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proyecto Generación Longeva · CPS</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1F4E79;
+    --azul-medio: #2E86AB;
+    --azul-claro: #D6E4F0;
+    --verde: #1E8449;
+    --verde-claro: #D5F5E3;
+    --amarillo: #F9C74F;
+    --rojo: #C0392B;
+    --rojo-claro: #FADBD8;
+    --blanco: #FAFAF8;
+    --gris-muy-claro: #F2F4F7;
+    --gris-texto: #444;
+    --sombra: 0 4px 24px rgba(31,78,121,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--blanco);
+    color: var(--gris-texto);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--azul);
+    display: flex; align-items: center; gap: 4px;
+    padding: 0 16px;
+    overflow-x: auto;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  }
+  nav::-webkit-scrollbar { height: 3px; }
+  nav::-webkit-scrollbar-thumb { background: var(--azul-medio); }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    color: #fff; font-size: 1rem; font-weight: 700;
+    white-space: nowrap; padding: 14px 12px 14px 4px;
+    border-right: 1px solid rgba(255,255,255,0.2);
+    margin-right: 4px;
+  }
+  .nav-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500;
+    padding: 14px 10px; white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    color: #fff;
+    border-bottom-color: var(--amarillo);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--azul) 0%, #163a5f 60%, #0d2440 100%);
+    padding: 72px 24px 60px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba(46,134,171,0.25) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(249,199,79,0.18);
+    border: 1px solid rgba(249,199,79,0.4);
+    color: var(--amarillo);
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 18px; border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    color: #fff; line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--amarillo); }
+  .hero p {
+    color: rgba(255,255,255,0.72);
+    font-size: 1.05rem; max-width: 580px; margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; color: var(--amarillo); font-weight: 900;
+  }
+  .stat-label { color: rgba(255,255,255,0.6); font-size: 0.8rem; }
+
+  /* ── GRID DE PASOS ── */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px; padding: 40px 24px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .step-card {
+    background: #fff;
+    border: 1px solid #e8eef5;
+    border-radius: 16px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.22s;
+    box-shadow: var(--sombra);
+    position: relative; overflow: hidden;
+  }
+  .step-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--azul-medio);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.25s;
+  }
+  .step-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(31,78,121,0.15); }
+  .step-card:hover::before { transform: scaleX(1); }
+  .step-icon { font-size: 2rem; margin-bottom: 10px; }
+  .step-num { font-size: 0.7rem; font-weight: 700; color: var(--azul-medio); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .step-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--azul); font-weight: 700; }
+
+  /* ── SECCIONES ── */
+  section {
+    max-width: 1000px; margin: 0 auto;
+    padding: 56px 24px;
+    border-top: 1px solid #e8eef5;
+  }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--azul-claro);
+    color: var(--azul); font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 6px 14px; border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  .section-label .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--azul-medio);
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    color: var(--azul); margin-bottom: 8px;
+  }
+  .section-sub { color: #777; font-size: 0.95rem; margin-bottom: 32px; line-height: 1.6; }
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; color: var(--azul);
+    margin: 28px 0 12px;
+  }
+
+  /* ── CARDS GENERICAS ── */
+  .card {
+    background: #fff; border: 1px solid #e8eef5;
+    border-radius: 14px; padding: 22px 24px;
+    box-shadow: var(--sombra); margin-bottom: 16px;
+  }
+  .card-title {
+    font-weight: 600; color: var(--azul);
+    font-size: 0.95rem; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card p, .card li { font-size: 0.92rem; line-height: 1.7; color: #555; }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+
+  /* ── GRID 2 COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: linear-gradient(135deg, var(--azul-claro), #eaf4fb);
+    border-left: 5px solid var(--azul-medio);
+    border-radius: 12px; padding: 22px 24px;
+    margin: 24px 0;
+    font-size: 0.97rem; line-height: 1.75; color: var(--azul);
+    font-style: italic;
+  }
+  .highlight.verde {
+    background: linear-gradient(135deg, var(--verde-claro), #eafaf1);
+    border-left-color: var(--verde);
+    color: #1a5c36;
+  }
+  .highlight.amarillo {
+    background: linear-gradient(135deg, #fef9e7, #fdf3c5);
+    border-left-color: #d4a017;
+    color: #7d6608;
+  }
+
+  /* ── TABLA DE PREGUNTAS ── */
+  .qa-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .qa-table th {
+    background: var(--azul); color: #fff;
+    padding: 12px 16px; text-align: left; font-weight: 600;
+  }
+  .qa-table th:first-child { border-radius: 10px 0 0 0; }
+  .qa-table th:last-child { border-radius: 0 10px 0 0; }
+  .qa-table td { padding: 12px 16px; border-bottom: 1px solid #eef2f7; vertical-align: top; line-height: 1.6; }
+  .qa-table tr:nth-child(even) td { background: #f7fafd; }
+  .qa-table tr:last-child td { border-bottom: none; }
+  .qa-table td:first-child { font-weight: 600; color: var(--azul); width: 32%; }
+
+  /* ── STORYBOARD ── */
+  .storyboard {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin: 24px 0;
+  }
+  .story-card {
+    border-radius: 14px; padding: 18px 16px;
+    text-align: center;
+  }
+  .story-card.problema { background: var(--rojo-claro); border: 1px solid #e8a8a1; }
+  .story-card.desafio { background: #fef9e7; border: 1px solid #f0d88a; }
+  .story-card.futuro { background: var(--verde-claro); border: 1px solid #a9ddb9; }
+  .story-card .icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .story-card .label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .story-card.problema .label { color: var(--rojo); }
+  .story-card.desafio .label { color: #7d6608; }
+  .story-card.futuro .label { color: var(--verde); }
+  .story-card p { font-size: 0.8rem; line-height: 1.5; color: #555; }
+
+  /* ── POST-IT GRID ── */
+  .postit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+  .postit {
+    padding: 16px; border-radius: 10px;
+    font-size: 0.85rem; line-height: 1.5;
+    box-shadow: 2px 3px 10px rgba(0,0,0,0.08);
+    position: relative;
+  }
+  .postit::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+  .postit.yellow { background: #fffde7; }
+  .postit.yellow::before { background: #f9c74f; }
+  .postit.blue { background: #e3f2fd; }
+  .postit.blue::before { background: #2E86AB; }
+  .postit.green { background: #e8f5e9; }
+  .postit.green::before { background: #1E8449; }
+  .postit.pink { background: #fce4ec; }
+  .postit.pink::before { background: #e91e63; }
+
+  /* ── SCAMPER ── */
+  .scamper-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 20px 0; }
+  .scamper-card { background: #fff; border: 1px solid #e8eef5; border-radius: 14px; padding: 18px 20px; }
+  .scamper-letter { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--azul-medio); line-height: 1; }
+  .scamper-name { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 8px; }
+  .scamper-card p { font-size: 0.87rem; line-height: 1.6; color: #555; }
+
+  /* ── POPS ── */
+  .pops-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 20px 0; }
+  .pops-card { border-radius: 14px; padding: 20px; }
+  .pops-card.p1 { background: #e8f4fd; border-top: 4px solid var(--azul); }
+  .pops-card.o { background: var(--verde-claro); border-top: 4px solid var(--verde); }
+  .pops-card.p2 { background: var(--rojo-claro); border-top: 4px solid var(--rojo); }
+  .pops-card.s { background: #fef9e7; border-top: 4px solid #d4a017; }
+  .pops-letter { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; margin-bottom: 4px; }
+  .pops-card.p1 .pops-letter { color: var(--azul); }
+  .pops-card.o .pops-letter { color: var(--verde); }
+  .pops-card.p2 .pops-letter { color: var(--rojo); }
+  .pops-card.s .pops-letter { color: #d4a017; }
+  .pops-name { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #777; margin-bottom: 10px; }
+  .pops-card ul { padding-left: 16px; }
+  .pops-card li { font-size: 0.87rem; line-height: 1.6; color: #555; margin-bottom: 4px; }
+
+  /* ── STAKEHOLDERS ── */
+  .stakeholder-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 20px 0; }
+  .stakeholder {
+    background: #fff; border: 1px solid #e8eef5;
+    border-radius: 14px; padding: 18px 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .stakeholder-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .stakeholder-name { font-weight: 600; color: var(--azul); font-size: 0.92rem; margin-bottom: 4px; }
+  .stakeholder p { font-size: 0.85rem; color: #666; line-height: 1.6; }
+
+  /* ── PLAN ── */
+  .fase {
+    background: #fff; border: 1px solid #e8eef5;
+    border-radius: 16px; margin-bottom: 20px;
+    overflow: hidden; box-shadow: var(--sombra);
+  }
+  .fase-header {
+    background: var(--azul); color: #fff;
+    padding: 16px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .fase-header h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #fff; margin: 0; }
+  .fase-header span { font-size: 0.78rem; color: rgba(255,255,255,0.65); }
+  .fase-body { padding: 20px 24px; }
+  .accion { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f0f4f8; }
+  .accion:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .accion-mes { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--azul-medio); margin-bottom: 4px; }
+  .accion-titulo { font-weight: 700; color: var(--azul); font-size: 0.97rem; margin-bottom: 6px; }
+  .accion p { font-size: 0.88rem; color: #666; line-height: 1.7; }
+
+  /* ── COMPONENTES ── */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+  .comp-card {
+    background: #fff; border: 1px solid #e8eef5;
+    border-radius: 16px; padding: 24px 22px;
+    box-shadow: var(--sombra);
+    border-top: 5px solid var(--azul-medio);
+  }
+  .comp-num { font-family: 'Playfair Display', serif; font-size: 0.75rem; font-weight: 700; color: var(--azul-medio); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+  .comp-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .comp-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--azul); margin-bottom: 10px; font-weight: 700; }
+  .comp-card p { font-size: 0.88rem; color: #666; line-height: 1.7; }
+
+  /* ── LISTAS DE AYUDAS/RESISTENCIAS ── */
+  .ar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  @media(max-width:580px) { .ar-grid { grid-template-columns: 1fr; } }
+  .ar-card { border-radius: 14px; padding: 20px; }
+  .ar-card.ayuda { background: var(--verde-claro); border: 1px solid #a9ddb9; }
+  .ar-card.resistencia { background: var(--rojo-claro); border: 1px solid #e8a8a1; }
+  .ar-card h4 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .ar-card.ayuda h4 { color: var(--verde); }
+  .ar-card.resistencia h4 { color: var(--rojo); }
+  .ar-card ul { padding-left: 16px; }
+  .ar-card li { font-size: 0.87rem; color: #555; margin-bottom: 6px; line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--azul);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px 24px;
+    font-size: 0.85rem;
+  }
+  footer strong { color: var(--amarillo); font-family: 'Playfair Display', serif; font-size: 1.1rem; display: block; margin-bottom: 8px; }
+
+  /* ── TAGS ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag { background: var(--azul-claro); color: var(--azul); font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 100px; }
+
+  /* animacion entrada */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  section { animation: fadeUp 0.5s ease both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Generación Longeva</div>
+  <button class="nav-btn active" onclick="navigateTo('inicio', this)">🏠 Inicio</button>
+  <button class="nav-btn" onclick="navigateTo('paso1', this)">📍 Paso 1</button>
+  <button class="nav-btn" onclick="navigateTo('paso2', this)">🌟 Paso 2</button>
+  <button class="nav-btn" onclick="navigateTo('paso3', this)">🚧 Paso 3</button>
+  <button class="nav-btn" onclick="navigateTo('paso4', this)">💡 Paso 4</button>
+  <button class="nav-btn" onclick="navigateTo('paso5', this)">🛠️ Paso 5</button>
+  <button class="nav-btn" onclick="navigateTo('paso6', this)">🤝 Paso 6</button>
+  <button class="nav-btn" onclick="navigateTo('paso7', this)">📋 Paso 7</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="inicio">
+  <div class="hero-tag">CPS · TSM · Universidad de La Sabana</div>
+  <h1>Proyecto<br><span>Generación Longeva</span></h1>
+  <p>Preparar a las nuevas generaciones en Colombia para envejecer con bienestar emocional y social, previniendo la depresión crónica en la vejez.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Pasos CPS</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Módulos</div></div>
+    <div class="stat"><div class="stat-num">Gen Z<br>& Y</div><div class="stat-label">Población objetivo</div></div>
+    <div class="stat"><div class="stat-num">🧭</div><div class="stat-label">Enfoque Preventivo</div></div>
+  </div>
+</div>
+
+<!-- GRID PASOS -->
+<div class="steps-grid">
+  <div class="step-card" onclick="navigateTo('paso1')">
+    <div class="step-icon">📍</div>
+    <div class="step-num">Paso 1</div>
+    <div class="step-title">Clarificación del Problema</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso2')">
+    <div class="step-icon">🌟</div>
+    <div class="step-num">Paso 2</div>
+    <div class="step-title">Exploración de la Visión</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso3')">
+    <div class="step-icon">🚧</div>
+    <div class="step-num">Paso 3</div>
+    <div class="step-title">Formulación de Desafíos</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso4')">
+    <div class="step-icon">💡</div>
+    <div class="step-num">Paso 4</div>
+    <div class="step-title">Exploración de Ideas</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso5')">
+    <div class="step-icon">🛠️</div>
+    <div class="step-num">Paso 5</div>
+    <div class="step-title">Formulación de Soluciones</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso6')">
+    <div class="step-icon">🤝</div>
+    <div class="step-num">Paso 6</div>
+    <div class="step-title">Exploración de Aceptación</div>
+  </div>
+  <div class="step-card" onclick="navigateTo('paso7')">
+    <div class="step-icon">📋</div>
+    <div class="step-num">Paso 7</div>
+    <div class="step-title">Formulación del Plan</div>
+  </div>
+</div>
+
+<!-- PASO 1 -->
+<section id="paso1">
+  <div class="section-label"><span class="dot"></span>Paso 1 · Pensamiento Diagnóstico</div>
+  <h2>Clarificación del Problema</h2>
+  <p class="section-sub">Herramienta: Preguntas para obtener datos. Exploramos la situación desde múltiples ángulos para entender el problema en profundidad.</p>
+
+  <table class="qa-table">
+    <thead>
+      <tr><th>Pregunta clave</th><th>Dato / Hallazgo</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>¿Cuál es la situación?</td><td>Las nuevas generaciones no están desarrollando los activos emocionales, sociales y espirituales necesarios para envejecer bien, anticipando una crisis masiva de depresión en la vejez.</td></tr>
+      <tr><td>¿Quiénes están involucrados?</td><td>Jóvenes de 14 a 43 años (Gen Z y Millennials), familias, sistema educativo, empresas, Estado, medios de comunicación y adultos mayores como referentes de longevidad.</td></tr>
+      <tr><td>¿Quién toma decisiones?</td><td>Ministerio de Educación, universidades, empresas, familias y los propios jóvenes como agentes de su desarrollo emocional futuro.</td></tr>
+      <tr><td>¿Qué éxitos existen hoy?</td><td>Iniciativas de educación emocional en colegios, programas de mentoría intergeneracional y movimientos de envejecimiento activo han mostrado impacto positivo en algunos contextos.</td></tr>
+      <tr><td>¿Qué obstáculos existen?</td><td>Cultura del presentismo, estigma frente a hablar de vejez, ausencia de currículos de longevidad y predominio de redes sociales como fuente de validación emocional.</td></tr>
+      <tr><td>¿Cuándo sucede?</td><td>La falta de preparación se acumula durante la juventud y se manifiesta al llegar la jubilación, la pérdida de roles sociales y el vaciamiento de las redes de apoyo.</td></tr>
+      <tr><td>¿Cuál es el instinto?</td><td>La depresión en la vejez no es inevitable: se construye —o se previene— desde las decisiones emocionales y sociales que tomamos en la juventud.</td></tr>
+      <tr><td>¿Cuál es el resultado ideal?</td><td>Una generación que llega a la vejez con redes de apoyo sólidas, propósito de vida claro, habilidades de resiliencia y relaciones intergeneracionales profundas.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight">
+    <strong>🔎 Síntesis del Problema:</strong> Las nuevas generaciones en Colombia están llegando a la vejez sin los activos emocionales, espirituales y sociales necesarios para enfrentarla con bienestar. La cultura digital, el presentismo y la falta de modelos positivos de longevidad han normalizado una vejez solitaria y dependiente. Sin intervención desde edades tempranas, esta tendencia derivará en una epidemia silenciosa de depresión crónica en adultos mayores.
+  </div>
+</section>
+
+<!-- PASO 2 -->
+<section id="paso2">
+  <div class="section-label"><span class="dot"></span>Paso 2 · Pensamiento Visionario</div>
+  <h2>Exploración de la Visión</h2>
+  <p class="section-sub">Herramienta: Ilusiones · Futuros deseados y no deseados</p>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">🟢 Futuros Positivos</div>
+      <ul>
+        <li>Sería genial si cada joven en Colombia tuviera acceso a un programa de educación para la longevidad desde el colegio.</li>
+        <li>Sería maravilloso si los jóvenes vieran a los adultos mayores como referentes de sabiduría, no como una carga.</li>
+        <li>Sería increíble que las empresas incluyeran la preparación emocional para la vejez en sus programas de bienestar.</li>
+        <li>Estaría muy bien que existieran espacios intergeneracionales donde jóvenes y adultos mayores se encuentren y aprendan mutuamente.</li>
+        <li>Sería fantástico que los medios mostraran modelos positivos y reales de envejecimiento activo y con propósito.</li>
+        <li>Sería genial si prepararse para envejecer bien fuera tan normal como ahorrar para la pensión.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🔴 Futuros Negativos</div>
+      <ul>
+        <li>Sería terrible si seguimos llegando a los 70 años con redes sociales vacías y sin habilidades para manejar la soledad.</li>
+        <li>Fracasaríamos si la tecnología reemplaza los vínculos humanos profundos y llegamos a viejos con solo seguidores digitales.</li>
+        <li>Estaría fatal que el sistema educativo siga ignorando la inteligencia emocional y la preparación para todas las etapas de vida.</li>
+        <li>Sería un fracaso que la depresión en la vejez se siga tratando como algo inevitable en lugar de un problema prevenible.</li>
+        <li>Tendríamos problemas si las nuevas generaciones llegan a viejas sin haber cultivado ninguna relación intergeneracional.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="highlight verde">
+    <strong>🎯 Visión:</strong> Lograr que las nuevas generaciones en Colombia lleguen a la vejez con bienestar emocional pleno, redes de apoyo sólidas, propósito de vida claro y relaciones intergeneracionales significativas, previniendo desde hoy la depresión crónica en la vejez a través de educación para la longevidad, cultura de conexión humana y modelos positivos de envejecimiento activo.
+  </div>
+</section>
+
+<!-- PASO 3 -->
+<section id="paso3">
+  <div class="section-label"><span class="dot"></span>Paso 3 · Pensamiento Estratégico</div>
+  <h2>Formulación de los Desafíos</h2>
+  <p class="section-sub">Herramienta: Storyboard + Desafíos como Preguntas</p>
+
+  <div class="highlight amarillo">
+    <strong>❓ Pregunta Problema Central:</strong> ¿Cómo podríamos preparar a las nuevas generaciones en Colombia para envejecer con bienestar emocional y social, previniendo la depresión en la vejez?
+  </div>
+
+  <h3>📽️ Storyboard: Del Problema al Futuro Deseado</h3>
+  <div class="storyboard">
+    <div class="story-card problema">
+      <div class="icon">😔</div>
+      <div class="label">Situación Actual</div>
+      <p>El joven vive en una cultura del presente: redes sociales, validación digital y vínculos superficiales. No piensa en envejecer ni cultiva habilidades emocionales.</p>
+    </div>
+    <div class="story-card desafio">
+      <div class="icon">📚</div>
+      <div class="label">Desafío 1</div>
+      <p>¿Cómo podríamos crear programas de educación para la longevidad que formen activos emocionales desde la juventud?</p>
+    </div>
+    <div class="story-card desafio">
+      <div class="icon">🤝</div>
+      <div class="label">Desafío 2</div>
+      <p>¿De qué manera podríamos generar espacios intergeneracionales que cambien la percepción que los jóvenes tienen de la vejez?</p>
+    </div>
+    <div class="story-card desafio">
+      <div class="icon">🏢</div>
+      <div class="label">Desafío 3</div>
+      <p>¿Cómo podríamos rediseñar la cultura empresarial para preparar emocionalmente a los empleados para la jubilación?</p>
+    </div>
+    <div class="story-card desafio">
+      <div class="icon">📱</div>
+      <div class="label">Desafío 4</div>
+      <p>¿Cuáles podrían ser todas las formas de usar lo digital para mostrar modelos positivos de envejecimiento?</p>
+    </div>
+    <div class="story-card futuro">
+      <div class="icon">🌈</div>
+      <div class="label">Futuro Deseado</div>
+      <p>Una generación preparada: redes de apoyo reales, propósito de vida, resiliencia emocional y vínculos intergeneracionales profundos.</p>
+    </div>
+  </div>
+
+  <h3>Desafíos Formulados como Preguntas</h3>
+  <table class="qa-table">
+    <thead><tr><th>En lugar de...</th><th>Desafío (¿Cómo podríamos...?)</th></tr></thead>
+    <tbody>
+      <tr><td>No hay educación para la longevidad</td><td>¿Cómo podríamos crear currículos de longevidad emocional en colegios y universidades?</td></tr>
+      <tr><td>Los jóvenes no se relacionan con adultos mayores</td><td>¿De qué manera podríamos generar encuentros intergeneracionales significativos y continuos?</td></tr>
+      <tr><td>Las empresas no preparan para la jubilación</td><td>¿Cómo podríamos diseñar programas empresariales de preparación emocional para la vejez?</td></tr>
+      <tr><td>Las redes sociales promueven vínculos superficiales</td><td>¿Cuáles podrían ser todas las formas de usar lo digital para fortalecer conexiones humanas profundas?</td></tr>
+      <tr><td>No hay modelos positivos de envejecimiento</td><td>¿Cómo podríamos visibilizar referentes de envejecimiento activo y con propósito en Colombia?</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PASO 4 -->
+<section id="paso4">
+  <div class="section-label"><span class="dot"></span>Paso 4 · Pensamiento Ideacional</div>
+  <h2>Exploración de Ideas</h2>
+  <p class="section-sub">Herramientas: Brainstorming · Conexiones Forzadas · SCAMPER</p>
+
+  <h3>🧠 Brainstorming — Post-it de Ideas</h3>
+  <div class="postit-grid">
+    <div class="postit yellow">Asignatura universitaria de "Longevidad y Bienestar"</div>
+    <div class="postit yellow">App de mentoría intergeneracional joven-adulto mayor</div>
+    <div class="postit yellow">Festival anual de envejecimiento activo en universidades</div>
+    <div class="postit blue">Programa empresarial "Prepara tu vejez" para mayores de 40</div>
+    <div class="postit blue">Red de abuelos adoptivos para jóvenes sin familia cercana</div>
+    <div class="postit blue">Podcast protagonizado por adultos mayores inspiradores</div>
+    <div class="postit green">Talleres de "testamento vital": definir propósito de vida desde joven</div>
+    <div class="postit green">Retos virales en redes sobre conexión intergeneracional</div>
+    <div class="postit green">Centros comunitarios de sabiduría gestionados por adultos mayores</div>
+    <div class="postit pink">Programa escolar de visitas semanales a hogares geriátricos</div>
+    <div class="postit pink">Videojuego cooperativo entre generaciones para desarrollar empatía</div>
+    <div class="postit pink">Pacto familiar de bienestar: compromiso de cuidado mutuo intergeneracional</div>
+  </div>
+
+  <h3>🧭 Conexiones Forzadas — Objeto: Una Brújula</h3>
+  <div class="card">
+    <div class="card-title">Atributos de la brújula → Ideas generadas</div>
+    <ul>
+      <li><strong>Apunta al norte:</strong> crear un "norte de vida" — talleres para que los jóvenes definan su propósito personal antes de los 30 años, como guía para toda la vida incluyendo la vejez.</li>
+      <li><strong>Funciona en cualquier terreno:</strong> diseñar herramientas de bienestar emocional que sean útiles tanto en la prosperidad como en la crisis, sin depender de condiciones externas.</li>
+      <li><strong>Se aprende a usar:</strong> la resiliencia y la conexión humana no son dones: son habilidades que se entrenan y deben enseñarse desde la infancia.</li>
+      <li><strong>Interpreta el paisaje:</strong> programa de alfabetización emocional que enseñe a los jóvenes a leer sus propias emociones y las de quienes los rodean.</li>
+      <li><strong>Guía hacia lo desconocido:</strong> la vejez es un territorio desconocido para los jóvenes — necesitan "mapas" (historias, mentores, experiencias) que les muestren que es posible envejecer bien.</li>
+    </ul>
+  </div>
+
+  <h3>🔧 SCAMPER</h3>
+  <div class="scamper-grid">
+    <div class="scamper-card">
+      <div class="scamper-letter">S</div>
+      <div class="scamper-name">Sustituye</div>
+      <p>Sustituir la cultura del "vivir el presente sin pensar en el futuro" por una cultura de longevidad consciente: prepararse hoy para vivir bien mañana.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">C</div>
+      <div class="scamper-name">Combina</div>
+      <p>Combinar la educación emocional con la educación financiera que ya existe, creando un solo programa de preparación integral para la vejez.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">A</div>
+      <div class="scamper-name">Adapta</div>
+      <p>Adaptar el modelo de mentoría empresarial al ámbito comunitario: adultos mayores como mentores emocionales de jóvenes que buscan propósito de vida.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">M</div>
+      <div class="scamper-name">Modifica</div>
+      <p>Modificar los planes de estudio universitarios para incluir una materia de "Ciclo de vida y bienestar" donde los jóvenes reflexionen sobre su propia longevidad.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">P</div>
+      <div class="scamper-name">Pon otros usos</div>
+      <p>Usar plataformas de streaming y redes sociales no solo para entretenimiento, sino como canal de historias inspiradoras de envejecimiento activo y con propósito.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">E</div>
+      <div class="scamper-name">Elimina</div>
+      <p>Eliminar el tabú de hablar de la vejez entre jóvenes: hacer de la longevidad un tema cotidiano, aspirable y positivo en conversaciones familiares y educativas.</p>
+    </div>
+    <div class="scamper-card">
+      <div class="scamper-letter">R</div>
+      <div class="scamper-name">Reordena</div>
+      <p>Reordenar el ciclo de vida desde la narrativa: en lugar de ver la vejez como el fin, presentarla como la etapa de mayor sabiduría, legado y libertad.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PASO 5 -->
+<section id="paso5">
+  <div class="section-label"><span class="dot"></span>Paso 5 · Pensamiento Evaluativo</div>
+  <h2>Formulación de Soluciones</h2>
+  <p class="section-sub">Prototipo: Programa Generación Longeva · Evaluación: POPS</p>
+
+  <div class="highlight verde">
+    <strong>🌱 La Solución Integradora:</strong> <em>Generación Longeva</em> es un ecosistema educativo y comunitario que integra tres niveles de intervención: escolar, universitario y empresarial. Su objetivo es que los jóvenes colombianos desarrollen desde temprano los activos emocionales, sociales y espirituales necesarios para envejecer con bienestar, previniendo la depresión crónica en la vejez.
+  </div>
+
+  <h3>Los 5 Módulos</h3>
+  <div class="comp-grid">
+    <div class="comp-card">
+      <div class="comp-num">Módulo 01</div>
+      <div class="comp-icon">📚</div>
+      <div class="comp-title">Escuela de Longevidad</div>
+      <p>Currículo de 4 sesiones por semestre en colegios y universidades sobre propósito de vida, inteligencia emocional, relaciones profundas y envejecimiento activo.</p>
+    </div>
+    <div class="comp-card">
+      <div class="comp-num">Módulo 02</div>
+      <div class="comp-icon">🔄</div>
+      <div class="comp-title">Mentoría Inversa 60+</div>
+      <p>Plataforma que conecta jóvenes con adultos mayores: el joven enseña tecnología, el adulto mayor enseña resiliencia, propósito y perspectiva de vida.</p>
+    </div>
+    <div class="comp-card">
+      <div class="comp-num">Módulo 03</div>
+      <div class="comp-icon">👨‍👩‍👧‍👦</div>
+      <div class="comp-title">Pacto Generacional Familiar</div>
+      <p>Herramienta de facilitación para que las familias tengan conversaciones guiadas sobre cómo quieren envejecer y cómo se van a cuidar mutuamente.</p>
+    </div>
+    <div class="comp-card">
+      <div class="comp-num">Módulo 04</div>
+      <div class="comp-icon">🧭</div>
+      <div class="comp-title">Radar de Bienestar Futuro</div>
+      <p>Herramienta digital donde el joven evalúa periódicamente sus activos emocionales, sociales y espirituales, con retos y recursos para fortalecerlos.</p>
+    </div>
+    <div class="comp-card">
+      <div class="comp-num">Módulo 05</div>
+      <div class="comp-icon">📢</div>
+      <div class="comp-title">Campaña "Envejece Bien"</div>
+      <p>Estrategia en redes sociales que visibiliza modelos positivos de longevidad en Colombia, normalizando una vejez activa, conectada y con propósito.</p>
+    </div>
+  </div>
+
+  <h3>⚖️ Evaluación POPS</h3>
+  <div class="pops-grid">
+    <div class="pops-card p1">
+      <div class="pops-letter">P</div>
+      <div class="pops-name">Puntos Positivos</div>
+      <ul>
+        <li>Ataca la raíz: previene en lugar de curar.</li>
+        <li>Escalable desde lo individual hasta lo institucional.</li>
+        <li>Genera valor intergeneracional mutuo.</li>
+        <li>Aprovecha canales existentes sin infraestructura nueva.</li>
+      </ul>
+    </div>
+    <div class="pops-card o">
+      <div class="pops-letter">O</div>
+      <div class="pops-name">Oportunidades</div>
+      <ul>
+        <li>Envejecimiento poblacional hace urgente esta intervención.</li>
+        <li>Creciente interés de jóvenes por bienestar mental y propósito.</li>
+        <li>Posibilidad de alianzas con Ministerio de Educación, universidades y EPS.</li>
+      </ul>
+    </div>
+    <div class="pops-card p2">
+      <div class="pops-letter">P</div>
+      <div class="pops-name">Preocupaciones</div>
+      <ul>
+        <li>¿Cómo lograr que los jóvenes se interesen en algo tan lejano como la vejez?</li>
+        <li>¿Cómo garantizar continuidad más allá de un semestre piloto?</li>
+        <li>¿Cómo medir el impacto emocional a largo plazo?</li>
+      </ul>
+    </div>
+    <div class="pops-card s">
+      <div class="pops-letter">S</div>
+      <div class="pops-name">Superación</div>
+      <ul>
+        <li>Anclar al bienestar presente: "prepararte para envejecer bien te hace vivir mejor hoy".</li>
+        <li>Diseño modular e institucionalizado que no dependa de un solo líder.</li>
+        <li>Indicadores de bienestar validados + seguimiento longitudinal con cohortes piloto.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PASO 6 -->
+<section id="paso6">
+  <div class="section-label"><span class="dot"></span>Paso 6 · Pensamiento Contextual</div>
+  <h2>Exploración de la Aceptación</h2>
+  <p class="section-sub">Herramientas: Ayudas y Resistencias · Análisis de Stakeholders</p>
+
+  <div class="ar-grid">
+    <div class="ar-card ayuda">
+      <h4>✅ Ayudas</h4>
+      <ul>
+        <li>Creciente cultura de bienestar mental entre jóvenes</li>
+        <li>Movimiento global de envejecimiento activo y longevidad</li>
+        <li>Universidades con currículos flexibles y electivas de bienestar</li>
+        <li>Empresas con programas de bienestar laboral en expansión</li>
+        <li>Adultos mayores dispuestos a compartir su experiencia</li>
+        <li>Tecnología disponible para conectar generaciones a distancia</li>
+      </ul>
+    </div>
+    <div class="ar-card resistencia">
+      <h4>🚧 Resistencias</h4>
+      <ul>
+        <li>Presentismo cultural: los jóvenes priorizan el hoy, no la vejez</li>
+        <li>Tabú social frente a hablar de vejez y muerte en Colombia</li>
+        <li>Sistemas educativos rígidos sin espacio para inteligencia emocional</li>
+        <li>Falta de financiamiento para programas sociales de largo plazo</li>
+        <li>Percepción negativa de la vejez en medios (edadismo)</li>
+        <li>Brecha digital que puede excluir a adultos mayores</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>👥 Análisis de Stakeholders</h3>
+  <div class="stakeholder-list">
+    <div class="stakeholder">
+      <div class="stakeholder-icon">🎓</div>
+      <div>
+        <div class="stakeholder-name">Ministerio de Educación</div>
+        <p>Presentar evidencia internacional de currículos de longevidad exitosos y costo-efectividad de la prevención.</p>
+      </div>
+    </div>
+    <div class="stakeholder">
+      <div class="stakeholder-icon">🏫</div>
+      <div>
+        <div class="stakeholder-name">Universidades</div>
+        <p>Proponer electiva piloto con créditos académicos. Aliado natural con alta disposición al cambio.</p>
+      </div>
+    </div>
+    <div class="stakeholder">
+      <div class="stakeholder-icon">🏢</div>
+      <div>
+        <div class="stakeholder-name">Empresas Privadas</div>
+        <p>Mostrar ROI: empleados con bienestar emocional son más productivos y tienen menor ausentismo.</p>
+      </div>
+    </div>
+    <div class="stakeholder">
+      <div class="stakeholder-icon">📱</div>
+      <div>
+        <div class="stakeholder-name">Jóvenes Gen Z y Millennials</div>
+        <p>Enmarcar la propuesta como bienestar hoy, no solo preparación para mañana. Hacerla relevante en el presente.</p>
+      </div>
+    </div>
+    <div class="stakeholder">
+      <div class="stakeholder-icon">🧓</div>
+      <div>
+        <div class="stakeholder-name">Adultos Mayores</div>
+        <p>Reconocerlos como protagonistas y transmisores de sabiduría. Protagonistas del diseño, no beneficiarios pasivos.</p>
+      </div>
+    </div>
+    <div class="stakeholder">
+      <div class="stakeholder-icon">📺</div>
+      <div>
+        <div class="stakeholder-name">Medios y Redes Sociales</div>
+        <p>Co-crear contenido viral sobre longevidad positiva con influenciadores y creadores de contenido de bienestar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PASO 7 -->
+<section id="paso7">
+  <div class="section-label"><span class="dot"></span>Paso 7 · Pensamiento Táctico</div>
+  <h2>Formulación del Plan</h2>
+  <p class="section-sub">Herramienta: Generación de Pasos para la Acción · Horizonte: 12 meses</p>
+
+  <div class="highlight">
+    <strong>🤝 Compromiso del Equipo:</strong> Nos comprometemos a implementar <em>Generación Longeva</em> como programa piloto en una universidad de Bucaramanga durante el primer semestre de 2027, con al menos 80 jóvenes y 20 adultos mayores participantes.
+  </div>
+
+  <div class="fase">
+    <div class="fase-header">
+      <h3>FASE 1 · Diagnóstico e Investigación</h3>
+      <span>Meses 1 – 2</span>
+    </div>
+    <div class="fase-body">
+      <div class="accion">
+        <div class="accion-mes">Mes 1</div>
+        <div class="accion-titulo">🔍 Análisis de resultados del formulario</div>
+        <p>Analizar los datos recolectados con Gen Z y Millennials para identificar los activos emocionales más débiles y las percepciones dominantes sobre la vejez. Sistematizar hallazgos por generación y estrato.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 2</div>
+        <div class="accion-titulo">🤝 Construcción de alianzas estratégicas</div>
+        <p>Gestionar convenio con una universidad de Bucaramanga para ofrecer el módulo piloto como electiva con créditos. Conformar el equipo de trabajo y establecer acuerdos con al menos un adulto mayor referente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase">
+    <div class="fase-header">
+      <h3>FASE 2 · Diseño Participativo</h3>
+      <span>Meses 3 – 4</span>
+    </div>
+    <div class="fase-body">
+      <div class="accion">
+        <div class="accion-mes">Mes 3</div>
+        <div class="accion-titulo">🗺️ Reclutamiento de mentores adultos mayores</div>
+        <p>Identificar y vincular 20 adultos mayores activos y motivados para participar como mentores en el Programa de Mentoría Inversa 60+. Aplicar evaluación inicial de bienestar a los jóvenes participantes.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 4</div>
+        <div class="accion-titulo">🎨 Diseño del currículo piloto</div>
+        <p>Diseñar participativamente las 4 sesiones del módulo Escuela de Longevidad con metodología experiencial, casos reales y actividades intergeneracionales. Co-diseñar con los propios jóvenes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase">
+    <div class="fase-header">
+      <h3>FASE 3 · Implementación del Piloto</h3>
+      <span>Meses 5 – 6</span>
+    </div>
+    <div class="fase-body">
+      <div class="accion">
+        <div class="accion-mes">Mes 5</div>
+        <div class="accion-titulo">🚀 Lanzamiento del programa piloto</div>
+        <p>Iniciar el programa con 80 estudiantes universitarios y 20 mentores adultos mayores. Activar la plataforma de Mentoría Inversa 60+ y el Radar de Bienestar Futuro.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 6</div>
+        <div class="accion-titulo">📢 Lanzamiento de la campaña "Envejece Bien"</div>
+        <p>Lanzar en redes sociales la campaña con testimonios reales de los participantes del piloto. Generar contenido viral que normalice la longevidad positiva y atraiga nuevos participantes.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase">
+    <div class="fase-header">
+      <h3>FASE 4 · Seguimiento y Medición</h3>
+      <span>Meses 7 – 9</span>
+    </div>
+    <div class="fase-body">
+      <div class="accion">
+        <div class="accion-mes">Meses 7 – 8</div>
+        <div class="accion-titulo">📊 Monitoreo continuo y ajustes</div>
+        <p>Reuniones mensuales con el equipo para identificar dificultades y ajustar el programa. Refuerzo de la participación con recordatorios y sesiones motivacionales.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 9</div>
+        <div class="accion-titulo">🧠 Primera evaluación de impacto</div>
+        <p>Aplicar nuevamente el instrumento de bienestar emocional. Entrevistas de profundidad con participantes. Analizar cambios en percepción de la vejez, redes de apoyo y propósito de vida.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fase">
+    <div class="fase-header">
+      <h3>FASE 5 · Escalamiento</h3>
+      <span>Meses 10 – 12</span>
+    </div>
+    <div class="fase-body">
+      <div class="accion">
+        <div class="accion-mes">Mes 10</div>
+        <div class="accion-titulo">📋 Sistematización del modelo</div>
+        <p>Documentar el modelo completo: lecciones aprendidas, guías de implementación, materiales de capacitación y métricas de bienestar. Producir informe ejecutivo con evidencias.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 11</div>
+        <div class="accion-titulo">🌍 Presentación a nuevos aliados</div>
+        <p>Presentar modelo y resultados al Ministerio de Educación, empresas aliadas y posibles financiadores. Buscar recursos para expandir a 3 instituciones adicionales.</p>
+      </div>
+      <div class="accion">
+        <div class="accion-mes">Mes 12</div>
+        <div class="accion-titulo">🌱 Cierre del piloto y plan de expansión</div>
+        <p>Evaluación final integral. Celebración con participantes. Publicación del modelo Generación Longeva como referente de innovación social para Colombia.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Generación Longeva</strong>
+  Porque la depresión en la vejez no comienza a los 70 años: comienza hoy, en cada relación que no cultivamos y en cada propósito de vida que aplazamos.
+  <br><br>
+  <div class="tags" style="justify-content:center; margin-top:12px;">
+    <span class="tag" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.7);">Innovación Social</span>
+    <span class="tag" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.7);">Bienestar Emocional</span>
+    <span class="tag" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.7);">Conexión Intergeneracional</span>
+    <span class="tag" style="background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.7);">Enfoque Preventivo</span>
+  </div>
+  <br>
+  <span style="opacity:0.5; font-size:0.8rem;">Maestría en Gerencia de la Innovación · CPS:TSM · Universidad de La Sabana · 2026</span>
+</footer>
+
+<script>
+  function navigateTo(id, btn) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  // Highlight nav on scroll
+  const sections = ['inicio','paso1','paso2','paso3','paso4','paso5','paso6','paso7'];
+  const btns = document.querySelectorAll('.nav-btn');
+  window.addEventListener('scroll', () => {
+    let current = 'inicio';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 120) current = id;
+    });
+    btns.forEach((btn, i) => {
+      btn.classList.toggle('active', sections[i] === current);
+    });
+  });
+</script>
+</body>
+</html>
